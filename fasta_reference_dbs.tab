@@ -1,0 +1,9 @@
+#value	key	type	active	name	path
+# Add list of reference database file names here, (remove .csv suffix) and applicable columns 
+# Reference databases need to be together in the ... /usr/local/galaxy/shared/bccdc_tools/tool-data/blast_report/bins/ folder
+# NOTE: These are necessary (i.e. must be uncommented) if reference bins are used.
+16S_euzby		16S	1	Euzby	/usr/local/galaxy/shared/ngs_data/
+16S_ncbi		16S	1	16S Microbial (NCBI)	/usr/local/galaxy/shared/ngs_data/
+16S_rdp		16S	1	16S RDP	/usr/local/galaxy/shared/ngs_data/
+CPN60		CPN60	1	CPN60 Chaperonin	/usr/local/galaxy/shared/ngs_data/
+hisA_burkholderia		hisA	1	hisA Burkholderia	/usr/local/galaxy/shared/ngs_data/

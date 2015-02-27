@@ -1,0 +1,308 @@
+<tool id="bccdcBLASTreporting" name="BLAST Reporting" version="1.0.5">
+	<description>BLAST search results reporting tool</description>
+	<command interpreter="python"><![CDATA[
+	blast_reporting.py 
+	$blastxml_file 
+	$out_format 
+	$tabular_file 
+	$html_file 
+	$selection_file:$selection_file.hid:$selection_file.dataset_id:$selection_file.id 
+	$html_template
+	-f "
+	#for $i, $my_repeat in enumerate( $filter_num ) 
+		$my_repeat.filter_column:
+		#for $i, $my_repeat2 in enumerate( $my_repeat.constraint ) 
+			$my_repeat2.filter_comparison $my_repeat2.filter_value,
+		#end for
+		;
+	#end for 
+	#for $i, $my_repeat in enumerate( $filter_text ) 
+		$my_repeat.filter_column2:
+		#for $i, $my_repeat2 in enumerate( $my_repeat.constraint2 ) 
+			$my_repeat2.filter_comparison2 $my_repeat2.filter_value2.replace(',','|'),
+		#end for
+		;
+	#end for
+	"
+	#if len($bins)
+		-b "
+		#for $i, $my_repeat in enumerate( $bins ) 
+			$my_repeat.bin_column:$my_repeat.group:$my_repeat.filter:$my_repeat.description;
+		#end for
+		"
+	#end if
+	#if $drop_redundant_hits
+		-r
+	#end if
+	#if $column_labels
+		-l "${column_labels}"
+	#end if
+	#if len($fields)
+		-c "
+		#for $i, $my_repeat in enumerate( $fields ) 
+			$my_repeat.field:$my_repeat.group:$my_repeat.sort:$my_repeat.label;
+		#end for
+		"
+	#end if
+	#if not str($row_limit) == "None"
+	-n "${row_limit}"
+	#end if
+	###if $library_datasets
+	##	-B "
+	##	#for $i, $dataset in enumerate($library_datasets)
+	##		#$dataset.get_file_name()
+	##		$dataset.id
+	##	#end for
+	##	"
+	###end if
+	]]></command>
+
+<!-- target base="${GALAXY_DATA_MANAGER_DATA_PATH}">${dbkey}/seq/${path}</target -->
+
+	<inputs>
+		<param name="blastxml_file" type="data" format="blastxml" label="BLAST results as XML"/> 
+		
+		<repeat name="filter_num" title="Numeric Filter" min="0" max="4">
+			<!-- TRIED conditional here, but it does not allow for <repeat> children. -->
+
+			<param name="filter_column" type="select" label="Col">
+				<options from_data_table="blast_reporting_fields">
+					<filter type="static_value" value="numeric" column="type" />
+					<filter type="sort_by" column="name"/>
+				</options>
+			</param>
+				
+			<repeat name="constraint" title="Constraint" min="1" max="3">
+				<param name="filter_comparison" type="select" label="Comparison">
+					<option value="gte">&gt;= </option>
+					<option value="gt">&gt;</option>
+					<option value="lt">&lt; </option>
+					<option value="lte">&lt;= </option>
+					<option value="==">equal to </option>
+					<option value="!=">not equal to </option>
+				</param>
+				
+				<param name="filter_value" type="text" value="" label="Value">
+					<validator type="regex" message="Please input a number">([0-9]+|[0-9]*\.[0-9]+)</validator>
+				</param>
+				
+			</repeat>
+		</repeat>
+		
+		<repeat name="filter_text" title="Text Filter" min="0" max="3">
+			<param name="filter_column2" type="select" label="Column">
+				<options from_data_table="blast_reporting_fields">
+					<filter type="sort_by" column="name"/>				
+					<filter type="static_value" value="text" column="type" />
+				</options>
+			</param>
+			<repeat name="constraint2" title="Constraint" min="1" max="6">
+				<param name="filter_comparison2" type="select" label="Comparison">
+				    <option value="includes">has text</option>
+				    <option value="excludes">excludes text</option>
+				</param>
+				<param name="filter_value2" type="text" size="25" label="Phrase(s), comma separated" value=""/>
+			</repeat>
+		</repeat>
+
+		<param name="drop_redundant_hits" type="boolean" checked="true" label="Throw out redundant hits" help="Keep only the best hit when query matches multiple locales in a subject sequence." /> 
+
+		<param name="row_limit" type="integer" label="Row limit (per query)" help="Limit each query's results to this many rows. 0=unlimited." value="0" /> 
+
+		<param name="out_format" type="select" label="Basic Report Field Output" help="Use the field selectors below to add or customize fields that end up in the output HTML or tabular report.  By default results are presented by query, with table data sorted by score, descending.  Enter a preferred label in the text field to override the default field labeling.">
+			<option value="std" selected="True">Standard 12 columns</option>
+			<option value="std+seqs">Standard 12 columns + sequences</option>
+			<option value="ext">Extended 24 columns</option>
+			<option value="ext+">Extended 26 columns</option>
+			<option value="custom">Only field selections below</option>
+		</param>
+		
+		<repeat name="fields" title="Field" min="0">
+			<!-- acc, descr, score, p_cov, p_ident, -->
+			<param name="field" type="select" label="Include">
+				<options from_data_table="blast_reporting_fields">
+					<filter type="sort_by" column="name"/>
+					<filter type="static_value" value="1" column="choose" />
+				</options>
+			</param>
+			<param name="group" type="select" label="Group">
+				<option value="column" selected="true">A column</option>
+				<option value="hidden">A hidden column</option>
+				<option value="table">A table section</option>
+				<option value="section">A report section</option>
+			</param>
+			<param name="sort" type="select" label="Sort">
+				<option value="" selected="true">no sorting</option>
+				<option value="desc">descend</option>
+				<option value="asc">ascend</option>
+			</param>
+
+			<param name="label" type="text" label="Customize label for this column or section" size="15" value=""/>
+		</repeat>
+
+		<!-- Disabled until Galaxy bug fixed for this.
+		<param name="library_datasets" type="library_data" label="Reference Bin file" help="Select one reference bin at a time from the popup window's Reference Bin library."/>
+		-->
+
+		<repeat name="bins" title="Reference Bin" min="0" max="5">
+
+			<param name="bin_column" type="select" label="Sort by database bin match">
+				<options from_data_table="fasta_reference_dbs"></options>
+			</param>
+			<param name="group" type="select" label="Grouping">
+				<option value="column" selected="true">A column</option>
+				<option value="hidden">A hidden column</option>
+				<option value="table">A table section</option>
+			</param>
+			<param name="filter" type="select" label="Filtering">
+				<option value="" selected="true">No filtering </option>
+				<option value="include">keep only matches </option>
+				<option value="exclude">Exclude matches </option>
+			</param>
+			<param name="description" type="boolean" checked="true" label="Show Description" help="Show description" />
+		</repeat>		
+
+		<param name="column_labels" type="select" label="Tabular Report Column Labels" help=""> 
+			<option value="label" selected="True">Short name</option>
+			<option value="field">Field name</option>
+			<option value="">No labels</option>
+		</param>
+
+		<param name="html_template" type="select" optional="true" label="HTML Report template">
+			<options from_data_table="blast_reporting_templates"/> 
+		</param>
+
+	</inputs>
+	<outputs>
+
+		<data format="tabular" name="tabular_file" label="Tabular report for data $blastxml_file.hid" />
+		<data format="html" name="html_file" label="HTML report for data $blastxml_file.hid">
+			<filter>html_template != ""</filter>
+		</data>
+		<data format="tabular" name="selection_file" label="Sequence Selection List for data $blastxml_file.hid">
+			<filter>out_format != "std"</filter>
+		</data>
+	</outputs>
+	<!--
+	
+		'1a': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1a.tabular','options':''},
+				'1a1':{'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1a1.tabular blast_reporting_1a1.html','options':'-r'},
+				'1b': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1b.tabular','options':'-r -f "pident:gte 97"'},
+				'1c': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1c.tabular','options':'-r -f "pident:gte 97" -c "pident:column:asc" -l label'},
+				'1d': {
+					'input':'blast_reporting_1.blastxml ext+',
+					'outputs':'blast_reporting_1d.tabular blast_reporting_1d.html blast_reporting_1d1.tabular',
+					'options':'-r -f "pident:gte 99" -l label -n 5'
+				}
+			}
+	-->
+	<tests>
+		<test><!-- Equivalent to output of old bccdc BLASTn XML to Tabular -->
+			<param name="blastxml_file" value="blast_reporting_1.blastxml"/>
+			<output name="tabular_file" file="blast_reporting_1a.tabular"/>
+			<param name="out_format" value="std"/>
+			<param name="column_labels" value="" />
+			<param name="drop_redundant_hits" value="true"/>
+						
+		</test>
+		<!-- test>
+			<param name="blastxml_file" value="blast_reporting_1.blastxml"/>
+			<output name="tabular_file" file="blast_reporting_1b.tabular"/>
+			<param name="out_format" value="std"/>
+			<param name="column_labels" value="" />
+			<param name="drop_redundant_hits" value="true"/>
+			
+			<param name="filter_column" value="pident"/>
+			<param name="filter_comparison" value="gte"/>
+			<param name="filter_value" value="97"/>
+			
+		</test>
+		<test>
+			<param name="blastxml_file" value="blast_reporting_1.blastxml"/>
+			<output name="tabular_file" file="BLAST_test_1c.tabular"/>
+			<param name="out_format" value="ext+"/>
+			<param name="column_labels" value="" />
+			<param name="drop_redundant_hits" value="true"/>
+			
+			<param name="filter_column" value="pident"/>
+			<param name="filter_comparison" value="gte"/>
+			<param name="filter_value" value="90"/>
+
+			<param name="field" value="pident"/>
+			<param name="group" value="column"/>
+			<param name="sort" value="asc"/>
+						
+		</test -->
+
+	</tests>
+
+	<help><![CDATA[
+		
+.. class:: infomark
+
+**What it does**
+
+NCBI BLAST+ searches can output in a range of formats, but in the past only 
+the XML format included fields like sequence description.
+This tool converts the BLAST XML report into 12, 24, 26 or custom column tabular
+ and HTML reports.  This tool is loosely based on the ''BLAST XML to tabular'' tool
+ available in main toolshed.  For the default 12 and 24 column reports, it should
+produce the same output although whitespace differences may exist.
+
+====== ============= ============================================
+Column NCBI name     Description
+====== ============= ============================================
+     1 qseqid        Query Seq-id (ID of your sequence)
+     2 sseqid        Subject Seq-id (ID of the database hit)
+     3 pident        Percentage of identical matches
+     4 length        Alignment length
+     5 mismatch      Number of mismatches
+     6 gapopen       Number of gap openings
+     7 qstart        Start of alignment in query
+     8 qend          End of alignment in query
+     9 sstart        Start of alignment in subject (database hit)
+    10 send          End of alignment in subject (database hit)
+    11 evalue        Expectation value (E-value)
+    12 bitscore      Bit score
+    .                 
+    13 sallseqid     All subject Seq-id(s), separated by a ';'
+    14 score         Raw score
+    15 nident        Number of identical matches
+    16 positive      Number of positive-scoring matches
+    17 gaps          Total number of gaps
+    18 ppos          Percentage of positive-scoring matches
+    19 qframe        Query frame
+    20 sframe        Subject frame
+    21 qseq          Aligned part of query sequence
+    22 sseq          Aligned part of subject sequence
+    23 qlen          Query sequence length
+    24 slen          Subject sequence length
+    .                 
+    25 pcov          Percentage coverage
+    26 sallseqdescr  All subject Seq-descr(s), separated by a ','
+====== ============= ============================================
+
+An option also exists to select particular columns for the output 
+report, and to cross-reference each result with one or more reference bins.l
+A command line version can be used.  Type blast_reporting.py -h for help.
+
+**python blast_reporting.py in_file out_file out_format [options]**
+
+.. class:: warningmark
+
+As noted in the original BLAST XML to tabular tool, ''Be aware that the XML file (and thus the conversion) and the tabular output direct from BLAST+ may differ in the presence of XXXX masking on regions low complexity (columns 21 and 22), and thus also calculated figures like the percentage identity (column 3) and gap openings.''
+
+**References**
+
+If using this tool for publishing results, you may need to cite its origin in the BLAST XML to tabular tool:
+
+Peter J.A. Cock, Björn A. Grüning, Konrad Paszkiewicz and Leighton Pritchard (2013).
+Galaxy tools and workflows for sequence analysis with applications
+in molecular plant pathology. PeerJ 1:e167
+http://dx.doi.org/10.7717/peerj.167
+
+    ]]></help>
+    <citations>
+      <citation type="doi">10.7717/peerj.167</citation>
+    </citations>
+</tool>

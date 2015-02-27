@@ -1,0 +1,7 @@
+#value  name    description
+# Add list of html templates here
+templates.html_report	Standard HTML Report	A report that can have sections and table sections
+templates.html_selectable_report	Selectable HTML Report	Like the Standard HTML Report, but also enables selecting items for inclusion in the FASTA Selections Tool.
+#
+# Add list of customized templates here.  The folder they are in needs to be mentioned in a .pth file (usually located in your python's site-packages folder).
+#templates_custom.html_report	Customized report	Customized report ...

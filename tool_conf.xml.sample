@@ -1,0 +1,6 @@
+<toolbox>
+    <section name="BCCDC Tools" id="bccdc_tools">
+        <label text="BLAST" id="bccdc_BLAST" />
+        <tool file="blast_reporting/blast_reporting.xml" />
+    </section>
+</toolbox>
