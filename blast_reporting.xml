@@ -1,4 +1,4 @@
-<tool id="bccdcBLASTreporting" name="BLAST Reporting" version="1.0.5">
+<tool id="blast_reporting" name="BLAST Reporting" version="1.0.5">
 	<description>BLAST search results reporting tool</description>
 	<command interpreter="python"><![CDATA[
 	blast_reporting.py 
@@ -9,16 +9,16 @@
 	$selection_file:$selection_file.hid:$selection_file.dataset_id:$selection_file.id 
 	$html_template
 	-f "
-	#for $i, $my_repeat in enumerate( $filter_num ) 
+	#for $my_repeat in $filter_num
 		$my_repeat.filter_column:
-		#for $i, $my_repeat2 in enumerate( $my_repeat.constraint ) 
+		#for $my_repeat2 in $my_repeat.constraint
 			$my_repeat2.filter_comparison $my_repeat2.filter_value,
 		#end for
 		;
 	#end for 
-	#for $i, $my_repeat in enumerate( $filter_text ) 
+	#for $my_repeat in $filter_text 
 		$my_repeat.filter_column2:
-		#for $i, $my_repeat2 in enumerate( $my_repeat.constraint2 ) 
+		#for $my_repeat2 in $my_repeat.constraint2 
 			$my_repeat2.filter_comparison2 $my_repeat2.filter_value2.replace(',','|'),
 		#end for
 		;
@@ -26,7 +26,7 @@
 	"
 	#if len($bins)
 		-b "
-		#for $i, $my_repeat in enumerate( $bins ) 
+		#for $my_repeat in $bins
 			$my_repeat.bin_column:$my_repeat.group:$my_repeat.filter:$my_repeat.description;
 		#end for
 		"
@@ -39,7 +39,7 @@
 	#end if
 	#if len($fields)
 		-c "
-		#for $i, $my_repeat in enumerate( $fields ) 
+		#for $my_repeat in $fields 
 			$my_repeat.field:$my_repeat.group:$my_repeat.sort:$my_repeat.label;
 		#end for
 		"
@@ -183,56 +183,57 @@
 			<filter>out_format != "std"</filter>
 		</data>
 	</outputs>
-	<!--
-	
-		'1a': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1a.tabular','options':''},
-				'1a1':{'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1a1.tabular blast_reporting_1a1.html','options':'-r'},
-				'1b': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1b.tabular','options':'-r -f "pident:gte 97"'},
-				'1c': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1c.tabular','options':'-r -f "pident:gte 97" -c "pident:column:asc" -l label'},
-				'1d': {
-					'input':'blast_reporting_1.blastxml ext+',
-					'outputs':'blast_reporting_1d.tabular blast_reporting_1d.html blast_reporting_1d1.tabular',
-					'options':'-r -f "pident:gte 99" -l label -n 5'
-				}
-			}
-	-->
+
 	<tests>
-		<test><!-- Equivalent to output of old bccdc BLASTn XML to Tabular -->
+		<test><!-- Test taken from original BLAST to xml tool -->
+			<param name="blastxml_file" value="blastx_sample.xml"/>
+			<output name="tabular_file" file="blastx_sample_converted.tabular"/>
+			<param name="out_format" value="std"/>
+			<param name="column_labels" value="" />
+			<param name="drop_redundant_hits" value="False"/>			
+		</test>
+
+		<test>
 			<param name="blastxml_file" value="blast_reporting_1.blastxml"/>
 			<output name="tabular_file" file="blast_reporting_1a.tabular"/>
 			<param name="out_format" value="std"/>
 			<param name="column_labels" value="" />
-			<param name="drop_redundant_hits" value="true"/>
-						
+			<param name="drop_redundant_hits" value="True"/>
 		</test>
-		<!-- test>
+					
+		<test>
 			<param name="blastxml_file" value="blast_reporting_1.blastxml"/>
 			<output name="tabular_file" file="blast_reporting_1b.tabular"/>
 			<param name="out_format" value="std"/>
 			<param name="column_labels" value="" />
-			<param name="drop_redundant_hits" value="true"/>
-			
-			<param name="filter_column" value="pident"/>
-			<param name="filter_comparison" value="gte"/>
-			<param name="filter_value" value="97"/>
-			
+			<param name="drop_redundant_hits" value="True"/>
+
+			<param name="filter_num_0|filter_column" value="pident"/>
+			<param name="filter_num_0|constraint_0|filter_comparison" value="gte"/>
+			<param name="filter_num_0|constraint_0|filter_value" value="97"/>
+					
 		</test>
+
 		<test>
 			<param name="blastxml_file" value="blast_reporting_1.blastxml"/>
-			<output name="tabular_file" file="BLAST_test_1c.tabular"/>
+			<output name="tabular_file" file="blast_reporting_1c.tabular"/>
+			<output name="selection_file" file="blast_reporting_1c1.tabular"/>
+						
 			<param name="out_format" value="ext+"/>
 			<param name="column_labels" value="" />
-			<param name="drop_redundant_hits" value="true"/>
-			
-			<param name="filter_column" value="pident"/>
-			<param name="filter_comparison" value="gte"/>
-			<param name="filter_value" value="90"/>
+			<param name="drop_redundant_hits" value="True"/>
 
-			<param name="field" value="pident"/>
-			<param name="group" value="column"/>
-			<param name="sort" value="asc"/>
-						
-		</test -->
+			<param name="filter_num_0|filter_column" value="pident"/>
+			<param name="filter_num_0|constraint_0|filter_comparison" value="gte"/>
+			<param name="filter_num_0|constraint_0|filter_value" value="97"/>
+
+			<param name="fields_0|field" value="pident"/>
+			<param name="fields_0|group" value="column"/>
+			<param name="fields_0|sort" value="asc"/>
+							
+			<param name="column_labels" value="label"/>
+			
+		</test>
 
 	</tests>
 
