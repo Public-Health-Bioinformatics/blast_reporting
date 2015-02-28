@@ -10,3 +10,5 @@ blastn -outfmt 5 -query "...."
 or via Galaxy by selecting the NCBI Blast+ search tool's option towards bottom of form ...
 
 Online documentation will follow soon.
+
+Note that currently the "Selectable HTML Report" requires a 2nd "select subsets" galaxy tool which we will upload shortly; but this feature still requires some finicky installation steps.
