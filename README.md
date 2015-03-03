@@ -15,14 +15,16 @@ The tool can be installed from https://toolshed.g2.bx.psu.edu/ .  It draws upon 
 The setup of Reference Bins and the Selectable HTML Report are optional as described below.
 
 ### Using ''Reference Bins''
- - A reference bin file is simply a text file having line records each containing an accession id and a description.  The accession id is cross-referenced with the accession id returned with each search hit.  However we have to tell the Blast reporting tool where these tables are.  They are listed in the fasta_reference_dbs.loc.sample, which ends up in the Galaxy install's tool-data/fasta_reference_dbs.loc file.
+ - A reference bin file is simply a text file having line records each containing an accession id and a description.  The accession id is cross-referenced with the accession id returned with each search hit.  However we have to tell the Blast reporting tool where these tables are.  Their names and paths are listed in the fasta_reference_dbs.loc.sample, which ends up in the Galaxy install's tool-data/fasta_reference_dbs.loc file.
 Example:
 
-|   AADS00000000.1 Phanerochaete chrysosporium RP-78 
-|   AAEW02000014.2 Desulfuromonas acetoxidans DSM 684
-|   AAEY01000007.0 Cryptococcus neoformans var. neoformans B-3501A 
-|   AAFI01000166 Dictyostelium discoideum AX4 
-|   AAFW02000169.3 Saccharomyces cerevisiae YJM789
+```
+AADS00000000.1 Phanerochaete chrysosporium RP-78
+AAEW02000014.2 Desulfuromonas acetoxidans DSM 684
+AAEY01000007.0 Cryptococcus neoformans var. neoformans B-3501A
+AAFI01000166 Dictyostelium discoideum AX4
+AAFW02000169.3 Saccharomyces cerevisiae YJM789
+```
 
 Both the search result hit and the reference file accession ids are stripped of any fractional component before being compared. 
 
