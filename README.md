@@ -18,7 +18,7 @@ The tool can be installed from https://toolshed.g2.bx.psu.edu/ .  It draws upon 
 The setup of Reference Bins and the Selectable HTML Report are optional as described below.
 
 ### Using ''Reference Bins''
- - A reference bin file is simply a text file having line records each containing an accession id and a description.  The accession id is cross-referenced with the accession id returned with each search hit.  However we have to tell the Blast reporting tool where these tables are.  Their names and paths are listed in the fasta_reference_dbs.loc.sample, which ends up in the Galaxy install's tool-data/fasta_reference_dbs.loc file.
+A reference bin file is simply a text file having line records each containing an accession id and a description.  The accession id is cross-referenced with the accession id returned with each search hit.  However we have to tell the Blast reporting tool where these tables are.  Their names and paths are listed in the fasta_reference_dbs.loc.sample, which ends up in the Galaxy install's tool-data/fasta_reference_dbs.loc file.
 Example:
 
 ```
@@ -39,4 +39,4 @@ Both the search result hit and the reference file accession ids are stripped of 
  - save the text file with the name "html_selectable_report_tool_state" to the tool's templates/ subfolder.  It should be alongside the html_selectable_report.py script which reads it.
 
 ## Development notes
- - A few changes are in the works: A galaxy form tool fix sheduled in the next month will enable setup of reference databases to be much easier.  One will only have to load each reference bin file into a Galaxy data library you can set up.
+A few changes are in the works: A galaxy form tool fix sheduled in the next month will enable setup of reference databases to be much easier.  One will only have to load each reference bin file into a Galaxy data library you can set up.
