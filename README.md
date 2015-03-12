@@ -39,4 +39,4 @@ Both the search result hit and the reference file accession ids are stripped of 
  - save the text file with the name "html_selectable_report_tool_state" to the tool's templates/ subfolder.  It should be alongside the html_selectable_report.py script which reads it.
 
 ## Development notes
-A few changes are in the works: A galaxy form tool fix sheduled in the next month will enable setup of reference databases to be much easier.  One will only have to load each reference bin file into a Galaxy data library you can set up.
+A few changes are in the works: A galaxy form tool fix sheduled in the next month will enable setup of reference databases to be much easier.  A Galaxy administrator will only have to create a "Reference Bin" data library, and load each reference bin file into it.  No more need to set up the fasta_reference_dbs.loc file.
