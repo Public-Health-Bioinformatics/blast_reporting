@@ -1,4 +1,4 @@
-<tool id="blast_reporting" name="BLAST Reporting" version="1.0.5">
+<tool id="blast_reporting" name="BLAST Reporting" version="1.0.6">
 	<description>BLAST search results reporting tool</description>
 	<command interpreter="python"><![CDATA[
 	blast_reporting.py 
@@ -111,8 +111,8 @@
 
 		<param name="out_format" type="select" label="Basic Report Field Output" help="Use the field selectors below to add or customize fields that end up in the output HTML or tabular report.  By default results are presented by query, with table data sorted by score, descending.  Enter a preferred label in the text field to override the default field labeling.">
 			<option value="std" selected="True">Standard 12 columns</option>
-			<option value="std+seqs">Standard 12 columns + sequences</option>
-			<option value="ext">Extended 24 columns</option>
+			<option value="std+seqs">Standard 12 columns + sequences (qseq and sseq)</option>
+			<option value="ext">Extended 25 columns</option>
 			<option value="ext+">Extended 26 columns</option>
 			<option value="custom">Only field selections below</option>
 		</param>
@@ -177,7 +177,7 @@
 
 		<data format="tabular" name="tabular_file" label="Tabular report for data $blastxml_file.hid" />
 		<data format="html" name="html_file" label="HTML report for data $blastxml_file.hid">
-			<filter>html_template != ""</filter>
+			<filter>html_template</filter> <!-- e != "None" -->
 		</data>
 		<data format="tabular" name="selection_file" label="Sequence Selection List for data $blastxml_file.hid">
 			<filter>out_format != "std"</filter>
@@ -219,7 +219,7 @@
 			<output name="tabular_file" file="blast_reporting_1c.tabular"/>
 			<output name="selection_file" file="blast_reporting_1c1.tabular"/>
 						
-			<param name="out_format" value="ext+"/>
+			<param name="out_format" value="ext"/>
 			<param name="column_labels" value="" />
 			<param name="drop_redundant_hits" value="True"/>
 
@@ -245,9 +245,9 @@
 
 NCBI BLAST+ searches can output in a range of formats, but in the past only 
 the XML format included fields like sequence description.
-This tool converts the BLAST XML report into 12, 24, 26 or custom column tabular
+This tool converts the BLAST XML report into 12, 25, 26 or custom column tabular
  and HTML reports.  This tool is loosely based on the ''BLAST XML to tabular'' tool
- available in main toolshed.  For the default 12 and 24 column reports, it should
+ available in main toolshed.  For the default 12 and 25 column reports, it should
 produce the same output although whitespace differences may exist.
 
 ====== ============= ============================================
@@ -279,12 +279,12 @@ Column NCBI name     Description
     23 qlen          Query sequence length
     24 slen          Subject sequence length
     .                 
-    25 pcov          Percentage coverage
-    26 sallseqdescr  All subject Seq-descr(s), separated by a ','
+    25 salltitles    All subject title(s), separated by '<>'
+    26 pcov          Percentage coverage
 ====== ============= ============================================
 
 An option also exists to select particular columns for the output 
-report, and to cross-reference each result with one or more reference bins.l
+report, and to cross-reference each result with one or more reference bins.
 A command line version can be used.  Type blast_reporting.py -h for help.
 
 **python blast_reporting.py in_file out_file out_format [options]**

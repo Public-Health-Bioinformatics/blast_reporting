@@ -17,7 +17,7 @@ gaps	numeric	int	1	1				1	Gaps	Total number of gaps
 mismatch	numeric	int	1	1				1	Mismatches	# of mismatches
 nident	numeric	int	1	1				1	Ident. Matches	# of identical matches
 positive	numeric	int	1	1				1	Pos. Matches	# of positive-scoring matches
-pident	numeric	float	1	1	97	90	100	1	% Identical	% of identical matches
+pident	numeric	float	1	1				1	% Identical	% of identical matches
 ppos	numeric	float	1	1				1	% Positive	% of positive-scoring matches
 score	numeric	int	1	1				1	Raw Score	Raw Score
 #
@@ -27,8 +27,8 @@ qlen	numeric	int	1	1				1	Query Length	Query sequence length
 #
 accessionid	text		1	1				1	Accession	Subject accession id
 sframe	numeric	int	1	1				1	Subject Frame	Subject frame
-sallseqdescr	text		0	1				1	Subject Descriptions	Subject sequence desc(s) (all)
-sseqdescr	text		1	1				1	Subject Description	Subject sequence desc. (first)
+salltitles	text		0	1				1	Subject Titles	Subject sequence title(s) (all)
+stitle	text		1	1				1	Subject Title Subject sequence title (first)
 sseqid	text	int	1	1				1	Subject Id	Subject sequence id
 sallseqid	text		1	1				1	Subject Ids	Subject sequence ids (all)
 slen	numeric	int	1	1				1	Subject Length	Subject sequence length

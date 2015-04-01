@@ -17,7 +17,7 @@ gaps	numeric	int	1	1				1	Gaps	Total number of gaps
 mismatch	numeric	int	1	1				1	Mismatches	# of mismatches
 nident	numeric	int	1	1				1	Ident. Matches	# of identical matches
 positive	numeric	int	1	1				1	Pos. Matches	# of positive-scoring matches
-pident	numeric	float	1	1				1	% Identical	% of identical matches
+pident	numeric	float	1	1	97	90	100	1	% Identical	% of identical matches
 ppos	numeric	float	1	1				1	% Positive	% of positive-scoring matches
 score	numeric	int	1	1				1	Raw Score	Raw Score
 #

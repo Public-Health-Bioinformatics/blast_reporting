@@ -1,0 +1,16 @@
+<tables>
+    <!-- List of BLAST+ FIELDS and DATA used in /bccdc_tools/blast_reporting/ tool -->
+    <!-- columns>value, name, type, filter, sort, selected, default, min, max </columns -->
+    <table name="blast_reporting_fields" comment_char="#">
+        <columns>value, type, subtype, sort, filter, default, min, max, choose, short_name, name</columns>
+        <file path="${__HERE__}/test-data/blast_reporting_fields.loc" />
+    </table>
+    <table name="fasta_reference_dbs" comment_char="#">
+        <columns>value, key, type, active, name, path</columns>
+        <file path="${__HERE__}/test-data/fasta_reference_dbs.loc" />
+    </table>
+    <table name="blast_reporting_templates" comment_char="#">
+        <columns>value, name, description</columns>
+        <file path="${__HERE__}/test-data/blast_reporting_templates.loc" />
+    </table>
+</tables>

@@ -43,7 +43,7 @@ class FieldFilter(object):
 		Numeric filters have a single numeric value
 		Each text filter is a string of phrases separated by "|"
 
-		 e.g. filters = "pident: > 97,score: > 37,sallseqdescr includes what | have|you"
+		 e.g. filters = "pident: > 97,score: > 37,salltitles includes what | have|you"
 		
 		 @param filters string	e.g. "[ [field name]: [comparator] [value],[[comparator] [value],]* ]* 
 		 @result .dict dictionary contains field name keys and arrays of [comparator, filterValue]

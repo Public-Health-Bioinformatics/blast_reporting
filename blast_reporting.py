@@ -10,7 +10,7 @@ So for command-line use, ensure the .tab files are updated to their .loc counter
  
 Takes three command line options, input BLAST XML filename, output tabular
 BLAST filename, output format (std for standard 12 columns, or ext for the
-extended 24 columns offered in the BLAST+ wrappers).
+extended 25 columns offered in the BLAST+ wrappers).
 
 The 12 columns output are 'qseqid sseqid pident length mismatch gapopen qstart
 qend sstart send evalue bitscore' or 'std' at the BLAST+ command line, which
@@ -58,8 +58,8 @@ ships with Galaxy to output two more column columns:
 ====== ============= ===========================================
 Column NCBI name     Description
 ------ ------------- -------------------------------------------
-    25 pcov          Percentage coverage
-    26 sallseqdescr  All subject Seq-descr(s), separated by a ','
+    25 salltitles  All Subject Title(s), separated by a '<>'
+    26 pcov          Percentage coverage
 ====== ============= ===========================================
 
 Most of these fields are given explicitly in the XML file, others some like
@@ -179,21 +179,21 @@ class XMLRecordScan(object):
 		
 		self.column_format = {
 			'std':12,
-			'ext':24,
 			'std+seqs':12,
+			'ext':25,
 			'ext+':26,
 			'custom':1
 		}
 		
 		if not output_format in self.column_format:
-			common.stop_err("Format argument should be std (12 column) or ext (extended 24 columns) or ext+ (extended 26+ columns) or custom (you choose fields). Format argument x22 has been replaced with ext (extended 24 columns)")
+			common.stop_err("Format argument should be std (12 column) or ext (extended 25 columns) or ext+ (extended 26+ columns) or custom (you choose fields). Format argument x22 has been replaced with ext (extended 25 columns)")
 		
 		# Array of columns destined for tab-delimited output - This defines default ORDER of fields too.
 		# Raw data fields that never get output: _bitscore, _evalue, _qframe, _sframe, 
 		# and this that has no m_frame equivalent: _mseq 
 		self.columns_in = 'qseqid sseqid pident _length mismatch gapopen _qstart _qend _sstart _send evalue bitscore \
 			sallseqid _score _nident _positive _gaps ppos qframe sframe _qseq _sseq qlen slen \
-			pcov sallseqdescr accessionid sseqdescr _mseq'.split()
+			salltitles pcov accessionid stitle _mseq'.split()
 		
 		fieldSpecFile = os.path.join(os.path.dirname(__file__), 'blast_reporting_fields.tab')
 		self.field_spec = common.FieldSpec(fieldSpecFile, self.columns_in)
@@ -335,24 +335,32 @@ class XMLRecordScan(object):
 		self.record.slen = str(int(bline._hit_len))
 		self.record.qlen = str(int(bline._qlen))
 
+		#NCBI DOCUMENTATION ON qcovs == pcov == pct_coverage == http://www.ncbi.nlm.nih.gov/IEB/ToolBox/CPP_DOC/lxr/source/include/objects/seqalign/Seq_align.hpp#L54
 		#extended+
 		self.record.pcov = "%0.2f" % (float(int(bline._qend) - int(bline._qstart) + 1)/int(bline._qlen) * 100)
-		sallseqdescr = []
-		try: 
-			for name in hit_def_array:
-				id_desc = name.split(None,1)
-				if len(id_desc) == 1: sallseqdescr.append('missing description - database issue') 
-				else: sallseqdescr.append(id_desc[1]) 
-		except IndexError as e:
-			common.stop_err("Problem splitting multiple hits?\n%r\n--> %s" % (hit_def, e))
-		# Example sallseqdescr is "Mus musculus ribosomal protein S8 (Rps8), mRNA ;Mus musculus ES cells cDNA, RIKEN full-length enriched library, clone:2410041L12 product:ribosomal protein S8, full insert sequence"
 		
-		self.record.sallseqdescr = ";".join(sallseqdescr)
-		self.record.sseqdescr = sallseqdescr[0]
+		titlesArray = self.getSalltitles(hit_def_array)
+		self.record.salltitles = "<>".join(titlesArray)
+		self.record.stitle = titlesArray[0]
 
 		return True # One may return false anywhere above to filter out current <Hsp> record.
 
+
+	def getSalltitles(self, hit_def_array):
+		""" Example salltitles is "Mus musculus ribosomal protein S8 (Rps8), mRNA <>Mus musculus ES cells cDNA, RIKEN full-length enriched library, clone:2410041L12 product:ribosomal protein S8, full insert sequence"
+		"""
+		salltitles = []
+		try: 
+			for name in hit_def_array:
+				id_desc = name.split(None,1)
+				if len(id_desc) == 1: salltitles.append('missing description - database issue') 
+				else: salltitles.append(id_desc[1]) 
+		except IndexError as e:
+			common.stop_err("Problem splitting multiple hits?\n%r\n--> %s" % (hit_def, e))
+
+		return salltitles
 		
+				
 	# Tab-delimited order is important, so we can't just cycle through (unordered) self.record attributes.
 	#
 	# @uses .record object with field attributes
@@ -390,8 +398,8 @@ class ReportEngine(object):
 			
 		   [out_format] is one of:
 			 "std" : standard 12 column
-			 "std+seqs" : standard 12 column plus search and matched sequences
-			 "ext" : extended 24 column
+			 "std+seqs" : standard 12 column plus search (qseq) and matched (sseq) sequences
+			 "ext" : extended 25 column
 			 "ext+": 26+ column
 			 "custom": Use only given field selections.
 	
@@ -401,7 +409,7 @@ class ReportEngine(object):
 
 		   FILTERS: 
 			Format: ([field_name]:[comparator] [value];)*
-			e.g. "pident: gt 97; sallseqdescr: excludes bovine|clone|environmental|swine|uncultivated|uncultured|unidentified"
+			e.g. "pident: gt 97; salltitles: excludes bovine|clone|environmental|swine|uncultivated|uncultured|unidentified"
 			[comparator] =
 				==	numeric equal
 				!=	numeric not equal
@@ -438,7 +446,7 @@ class ReportEngine(object):
 		parser.add_option('-n', '--number', type='int', dest='row_limit', 
 			help='Provide a limit to the number of rows of returned data. The default 0=unlimited.')
 
-		#TESTING
+		#TESTING Galaxy upcoming fix to pass library dataset files for reference bins.
 		parser.add_option('-B', '--refbins', type='string', dest='refbins', 
 			help='Testing library_data form input.')
 
@@ -470,7 +478,7 @@ class ReportEngine(object):
 
 		# "info" command provides a dump of all the fields that can be displayed from the Blast search.
 		if options.info:
-			# CAN WE LOCATE THIS FILE AS GALAXY SEES IT??????
+			# Future: Can stand-alone command line program access Galaxy's version of the field spec file?  Right now it is a separate copy.
 			print 'FIELDS:\n'
 			field_spec_path = os.path.join(os.path.dirname(__file__), 'blast_reporting_fields.tab')
 			fields = common.FieldSpec(field_spec_path)				
