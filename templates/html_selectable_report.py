@@ -43,13 +43,13 @@ class HTMLReport(object):
 			'target_form':'select_subsets'
 		}
 		
-		if hasattr(options,'dataset_selection_id'):
+		if options.dataset_selection_id != False:
 			self.lookup['dataset_selection_id'] = options.dataset_selection_id
 			self.initialized = True
 		
 		else:
 			self.lookup['dataset_selection_id'] = 0
-			self.errorNotice = '<div style="width:400px;margin:auto"><h3>This Selectable HTML Report needs the "Basic Report Field Output" to include the qseq and sseq sequence fields (aligned part of query sequence and subject sequence).  Add these fields or try a selection that has more than 12 columns.</h3></div>'
+			self.errorNotice = '<div style="width:400px;margin:auto"><h3>This Selectable HTML Report needs the "Basic Report Field Output" to include the qseq and sseq sequence fields (aligned part of query sequence and subject sequence) as well as their identifiers qseqid and sseqid.  Add these fields or try a selection that has more than 12 columns.</h3></div>'
 
 	"""		
 	_processTagStack()
@@ -238,9 +238,9 @@ class HTMLReport(object):
 				</script>
 
 				<form id="tool_form" name="tool_form" action="../../../tool_runner"  target="galaxy_main" method="post" enctype="application/x-www-form-urlencoded">
-   					<input type="hidden" name="refresh" value="refresh"/>
-            		<input type="hidden" name="tool_id" value="%(target_form)s"/>
-                  	<input type="hidden" name="tool_state" value="%(form_state)s">
+   				<input type="hidden" name="refresh" value="refresh"/>
+            	<input type="hidden" name="tool_id" value="%(target_form)s"/>
+               <input type="hidden" name="tool_state" value="%(form_state)s">
 					<input type="hidden" name="input" value="%(dataset_selection_id)s"/>			
 					<input type="hidden" name="incl_excl" value="1"/>
 		""" % self.lookup

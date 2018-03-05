@@ -1,4 +1,4 @@
-<tool id="blast_reporting" name="BLAST Reporting" version="1.0.6">
+<tool id="blast_reporting" name="BLAST Reporting" version="1.0.7">
 	<description>BLAST search results reporting tool</description>
 	<command interpreter="python"><![CDATA[
 	blast_reporting.py 
@@ -47,14 +47,15 @@
 	#if not str($row_limit) == "None"
 	-n "${row_limit}"
 	#end if
-	###if $library_datasets
-	##	-B "
-	##	#for $i, $dataset in enumerate($library_datasets)
-	##		#$dataset.get_file_name()
-	##		$dataset.id
-	##	#end for
-	##	"
-	###end if
+	
+	#if len($bins)
+		-B "
+		#for $my_repeat in $bins
+			$my_repeat.library_dataset.get_file_name()
+	 		$my_repeat.library_dataset.id
+		#end for
+	"
+	#end if
 	]]></command>
 
 <!-- target base="${GALAXY_DATA_MANAGER_DATA_PATH}">${dbkey}/seq/${path}</target -->
@@ -140,12 +141,11 @@
 			<param name="label" type="text" label="Customize label for this column or section" size="15" value=""/>
 		</repeat>
 
-		<!-- Disabled until Galaxy bug fixed for this.
-		<param name="library_datasets" type="library_data" label="Reference Bin file" help="Select one reference bin at a time from the popup window's Reference Bin library."/>
-		-->
 
 		<repeat name="bins" title="Reference Bin" min="0" max="5">
-
+			<!-- Introduced in may 2015 Galaxy. -->
+			<param name="library_dataset" type="library_data" label="Reference bin file" help="Select a reference bin from the popup window's Reference Bin library." multiple="false" />
+		
 			<param name="bin_column" type="select" label="Sort by database bin match">
 				<options from_data_table="fasta_reference_dbs"></options>
 			</param>
@@ -177,10 +177,11 @@
 
 		<data format="tabular" name="tabular_file" label="Tabular report for data $blastxml_file.hid" />
 		<data format="html" name="html_file" label="HTML report for data $blastxml_file.hid">
-			<filter>html_template</filter> <!-- e != "None" -->
+			<filter>html_template</filter>
 		</data>
 		<data format="tabular" name="selection_file" label="Sequence Selection List for data $blastxml_file.hid">
-			<filter>out_format != "std"</filter>
+			<filter>(out_format != "std")</filter>
+			<filter>html_template</filter>	
 		</data>
 	</outputs>
 
@@ -246,8 +247,8 @@
 NCBI BLAST+ searches can output in a range of formats, but in the past only 
 the XML format included fields like sequence description.
 This tool converts the BLAST XML report into 12, 25, 26 or custom column tabular
- and HTML reports.  This tool is loosely based on the ''BLAST XML to tabular'' tool
- available in main toolshed.  For the default 12 and 25 column reports, it should
+and HTML reports.  This tool is loosely based on the ''BLAST XML to tabular'' tool
+available in main toolshed.  For the default 12 and 25 column reports, it should
 produce the same output although whitespace differences may exist.
 
 ====== ============= ============================================
@@ -292,15 +293,6 @@ A command line version can be used.  Type blast_reporting.py -h for help.
 .. class:: warningmark
 
 As noted in the original BLAST XML to tabular tool, ''Be aware that the XML file (and thus the conversion) and the tabular output direct from BLAST+ may differ in the presence of XXXX masking on regions low complexity (columns 21 and 22), and thus also calculated figures like the percentage identity (column 3) and gap openings.''
-
-**References**
-
-If using this tool for publishing results, you may need to cite its origin in the BLAST XML to tabular tool:
-
-Peter J.A. Cock, Björn A. Grüning, Konrad Paszkiewicz and Leighton Pritchard (2013).
-Galaxy tools and workflows for sequence analysis with applications
-in molecular plant pathology. PeerJ 1:e167
-http://dx.doi.org/10.7717/peerj.167
 
     ]]></help>
     <citations>

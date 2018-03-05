@@ -353,7 +353,7 @@ class XMLRecordScan(object):
 		try: 
 			for name in hit_def_array:
 				id_desc = name.split(None,1)
-				if len(id_desc) == 1: salltitles.append('missing description - database issue') 
+				if len(id_desc) == 1: salltitles.append('missing title - database issue') 
 				else: salltitles.append(id_desc[1]) 
 		except IndexError as e:
 			common.stop_err("Problem splitting multiple hits?\n%r\n--> %s" % (hit_def, e))
@@ -446,33 +446,15 @@ class ReportEngine(object):
 		parser.add_option('-n', '--number', type='int', dest='row_limit', 
 			help='Provide a limit to the number of rows of returned data. The default 0=unlimited.')
 
-		#TESTING Galaxy upcoming fix to pass library dataset files for reference bins.
+		#TESTING Galaxy library dataset files for reference bins.
 		parser.add_option('-B', '--refbins', type='string', dest='refbins', 
 			help='Testing library_data form input.')
 
 		parser.add_option('-r', '--redundant', dest='drop_redundant_hits', default=False, action='store_true', 
 			help='Return only first match to a gene bank id result.')
 
-		parser.add_option('-t', '--tests', dest='test_ids', help='Enter "all" or comma-separated id(s) of tests to run.')
-			
 		options, args = parser.parse_args()
 
-		if options.test_ids: 
-
-			# Future: read this spec from test-data folder itself?
-			tests = {
-				'1a': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1a.tabular','options':''},
-				'1a1':{'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1a1.tabular blast_reporting_1a1.html','options':'-r'},
-				'1b': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1b.tabular','options':'-r -f "pident:gte 97"'},
-				'1c': {'input':'blast_reporting_1.blastxml std','outputs':'blast_reporting_1c.tabular','options':'-r -f "pident:gte 97" -c "pident:column:asc" -l label'},
-				'1d': {
-					'input':'blast_reporting_1.blastxml ext+',
-					'outputs':'blast_reporting_1d.tabular blast_reporting_1d.html blast_reporting_1d1.tabular',
-					'options':'-r -f "pident:gte 99" -l label -n 5'
-				}
-			}
-			common.testSuite(options.test_ids, tests, '/tmp/')
-		
 		import time
 		time_start = time.time()
 
@@ -570,24 +552,28 @@ class ReportEngine(object):
 		[$selection_file:$selection_file.hid:$selection_file.dataset_id:$selection_file.id]
 		Selection list doesn't necessarily need the HTML selectable report template, 
 		but that template was designed to feed the galaxy "Select subsets" tool with its data.
+		
+		From galaxy, incoming format is $selection_file:$selection_file.hid:$selection_file.dataset_id:$selection_file.id
 		"""
 		
 		if len(args) > 4 and args[4] != 'None:None:None:None': 
-			selection_file_data = args[4]
 			
-			#print ('selection file data:' + selection_file_data)
-			sel_file_fields = selection_file_data.split(':')
+			sel_file_fields = args[4].split(':')
 			selection_file = sel_file_fields[0]
-			# From galaxy, incoming format is $selection_file:$selection_file.hid:$selection_file.dataset_id:$selection_file.id
+
 			# From command line, user won't have specified any of this, so ignore.
-			if len(sel_file_fields) > 3:
-				options.dataset_selection_id = sel_file_fields[3]
-			
-			else:
-				options.dataset_selection_id = 0
+			options.dataset_selection_id = None
+			if len(sel_file_fields) > 3 and selection_file != 'None':
+				# Unfortunately we can't tell galaxy not to set up selection_file handle on xml form if input fields haven't been selected.  
+				# Have to test for needed input fields here
+				sel_requisites = 0
+				for (idx, field) in enumerate(tagGroup.columns): 
+					if field['field'] in 'qseqid _qseq sseqid _sseq': sel_requisites += 1
+					
+				if sel_requisites == 4:	
+					options.dataset_selection_id = sel_file_fields[3]
+					common.fileSelections(out_tabular_file, selection_file, tagGroup, options)
 				
-			common.fileSelections(out_tabular_file, selection_file, tagGroup, options)
-		
 		
 		"""
 		We must have a template in order to write anything to above html output file.

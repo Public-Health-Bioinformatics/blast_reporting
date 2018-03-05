@@ -450,74 +450,40 @@ def fileSelections (in_file, selection_file, tagGroup, options):
 	@param options object Includes label_flag and row_limit
 
 	"""
+
 	fp_in = open(in_file, "rb")
+	fp_out = open(selection_file, 'w')
 	
-	if selection_file != 'None':
-		fp_out = open(selection_file, 'w')
+	try:
 
-		
-		try:
+		reader = csv.reader(fp_in, delimiter="\t")
+		writer = csv.writer(fp_out, delimiter="\t")
 
-			reader = csv.reader(fp_in, delimiter="\t")
-			writer = csv.writer(fp_out, delimiter="\t")
+		for (idx, field) in enumerate(tagGroup.columns): 
+			fieldname = field['field']
+			if fieldname == 'qseqid': qseqid_col = idx
+			elif fieldname == '_qseq': 	qseq_col = idx
+			elif fieldname == 'sseqid': sseqid_col = idx
+			elif fieldname == '_sseq': 	sseq_col = idx
 
-			for (idx, field) in enumerate(tagGroup.columns): 
-				fieldname = field['field']
-				if fieldname == 'qseqid': qseqid_col = idx
-				elif fieldname == '_qseq': 	qseq_col = idx
-				elif fieldname == 'sseqid': sseqid_col = idx
-				elif fieldname == '_sseq': 	sseq_col = idx
-	#			else: stop_err("You : " + field)
+		selectrow_count = 0
+		grouping = -1
+		old_section = ''
+		for row in reader:
 
-			selectrow_count = 0
-			grouping = -1
-			old_section = ''
-			for row in reader:
-
+			selectrow_count +=1
+			if row[qseqid_col] != old_section:
+				old_section = row[qseqid_col]
+				grouping +=1
+				writer.writerow([row[qseqid_col], row[qseq_col], grouping, selectrow_count])
 				selectrow_count +=1
-				if row[qseqid_col] != old_section:
-					old_section = row[qseqid_col]
-					grouping +=1
-					writer.writerow([row[qseqid_col], row[qseq_col], grouping, selectrow_count])
-					selectrow_count +=1
 
-				writer.writerow([row[sseqid_col], row[sseq_col], grouping, selectrow_count])
+			writer.writerow([row[sseqid_col], row[sseq_col], grouping, selectrow_count])
 
-		
-		except IOError as e:
-			print 'Operation failed: %s' % e.strerror
-
-		fp_in.close()
-		fp_out.close()
-
-def testSuite(test_ids, tests, output_dir):
 	
-	if test_ids == 'all':
-		test_ids = sorted(tests.keys())
-	else:
-		test_ids = test_ids.split(',')
-	
-	for test_id in test_ids:
-		if test_id in tests:
-			test = tests[test_id]
-			test['base_dir'] = os.path.dirname(__file__)
-			# Each output file has to be prefixed with the output folder 
-			test['tmp_output'] = (' ' + test['outputs']).replace(' ',' ' + output_dir)
-			# Note: output_dir output files don't get cleaned up after each test.  Should they?!
-			params = '%(base_dir)s/blast_reporting.py %(base_dir)s/test-data/%(input)s%(tmp_output)s %(options)s' % test
-			print("Testing" + test_id + ': ' + params)
-			os.system(params) 
-			for file in test['outputs'].split(' '):
-				#print(os.system('diff --suppress-common-lines ./test-data/%s %s%s' % (file, output_dir, file)))
-				f1 = open(test['base_dir'] + '/test-data/' + file)
-				f2 = open(output_dir + file)
-				import difflib #n=[number of context lines
-				diff = difflib.context_diff(f1.readlines(), f2.readlines(), lineterm='',n=0)
-				# One Galaxy issue: it doesn't convert entities when user downloads file. BUT IT DOES when generating directly to command line?
-				print '\nCompare ' + file
-				print '\n'.join(list(diff))	
-			
-		else:
-			stop_err("\nExpecting one or more test ids from " + str(sorted(tests.keys())))
+	except IOError as e:
+		print 'Operation failed: %s' % e.strerror
 
-	stop_err("\nTest finished.")
+	fp_in.close()
+	fp_out.close()
+
