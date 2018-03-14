@@ -128,20 +128,6 @@ Note, if a query doesn't generate any hits it will be omitted entirely from the 
 
 ![Queries With Zero Results](images/queries_with_zero_results.png)
 
-### Selectable HTML Report
-
-The "selectable"template provides an enhanced version of the standard report which is designed to interface with a Galaxy toolshed tool called "Select Subsets". The selectable report has check boxes by each query's hit so that one can make selections of hit sequences, and send them off for further processing in a two-part pipeline/workflow. (Note that this report template requires that the input data have qseq and hseq fields - the query and hit sequences. If one has selected the default "Basic Report Field Output > Standard 12 columns" report, one must enhance it with these two fields.)
-
-![Selectable HTML Report Template](images/selectable_html_report_template.png)
-
-When the "Submit" button is pressed, all selected items are sent to the Select Subsets tool where they are used to make a new list of sequences. Example output:
-
-![Selected Results List](images/selected_results_list.png)
-
-The selectable report option triggers creation of a 3rd report in one's galaxy history list called "Sequence Selection List for data [history dataset #]". This is currently necessary for providing the actual sequences for Select Subsets tool to consume. Note that one can run the Select Subsets tool directly on a Sequence Selection List as shown here.
-
-![Select Subsets](images/select_subsets.png)
-
 ### Custom Report Templates
 
 Other customized HTML report templates can be installed by galaxy System administrators.
