@@ -206,7 +206,11 @@ Use `-i` to see possible field (column) selections as defined by `blast_reportin
 
 Format: `([field_name]:[comparator] [value];)*`
 
-e.g. `pident: gt 97; sallseqdescr: excludes bovine|clone|environmental|swine|uncultivated|uncultured|unidentified`
+e.g:
+
+```
+pident: gt 97; sallseqdescr: excludes bovine|clone|environmental|swine|uncultivated|uncultured|unidentified
+```
 
 `[comparator]` is one of:
 - `==` numeric equal
