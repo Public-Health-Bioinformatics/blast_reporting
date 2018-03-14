@@ -32,11 +32,7 @@ AAFW02000169.3 Saccharomyces cerevisiae YJM789
 Both the search result hit and the reference file accession ids are stripped of any fractional component before being compared. 
 
 ### Using the ''Selectable HTML Report'':
- - This is EXPERIMENTAL because it currently requires the "select subsets" galaxy tool with a bit of extra setup that might have to be redone as Galaxy evolves:
- - In Galaxy install and run the "Select subsets" tool from https://toolshed.g2.bx.psu.edu/.
- - Use your browser's "View frame source" option while mouse is over the "Select subsets" form.
- - Scroll down to the <input type="hidden" name="tool_state" value="..."> and copy the numeric value string into a new text file.
- - save the text file with the name "html_selectable_report_tool_state" to the tool's templates/ subfolder.  It should be alongside the html_selectable_report.py script which reads it.
+ - This was an EXPERIMENTAL feature that no longer works in current version of Galaxy, and so has been discontinued.
 
 ## Development notes
 A few changes are in the works: A galaxy form tool fix sheduled in the next month will enable setup of reference databases to be much easier.  A Galaxy administrator will only have to create a "Reference Bin" data library, and load each reference bin file into it.  No more need to set up the fasta_reference_dbs.loc file.
